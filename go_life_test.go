@@ -35,4 +35,35 @@ func TestUpdate(t *testing.T) {
 			t.Errorf("got %v want %v", updated_world, empty_world)
 		}
 	})
+
+	t.Run("single living cell dies", func(t *testing.T) {
+		world := createEmptyWorld(3, 3)
+		world[1][1] = true
+		updated_world := Update(world)
+
+		got := updated_world[1][1]
+		want := false
+
+		if got != want {
+			t.Errorf("got %t want %t", got, want)
+		}
+	})
+
+	t.Run("live cell with two or three live neighbors continues living", func(t *testing.T) {
+		world := createEmptyWorld(3, 3)
+		world[0][0] = true
+		world[0][1] = true
+		world[0][2] = true
+
+		got := Update(world)
+		want := [][]bool{
+			{false, true, false},
+			{false, false, false},
+			{false, false, false},
+		}
+
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got %v want %v", got, want)
+		}
+	})
 }
