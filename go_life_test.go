@@ -50,16 +50,13 @@ func TestUpdate(t *testing.T) {
 	})
 
 	t.Run("live cell with two or three live neighbors continues living", func(t *testing.T) {
-		world := createEmptyWorld(3, 3)
-		world[0][0] = true
-		world[0][1] = true
-		world[0][2] = true
+		world := [][]bool{
+			{true, true, true},
+		}
 
 		got := Update(world)
 		want := [][]bool{
 			{false, true, false},
-			{false, false, false},
-			{false, false, false},
 		}
 
 		if !reflect.DeepEqual(got, want) {
