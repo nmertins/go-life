@@ -62,6 +62,18 @@ func TestUpdate(t *testing.T) {
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got %v want %v", got, want)
 		}
+
+		world = [][]bool{
+			{true, true},
+			{true, true},
+		}
+
+		got = Update(world)
+		want = world
+
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got %v want %v", got, want)
+		}
 	})
 
 	t.Run("live cell with more than three live neighbors dies", func(t *testing.T) {
