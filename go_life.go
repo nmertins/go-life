@@ -60,6 +60,10 @@ func Update(world [][]bool) [][]bool {
 			if (live_neighbors == 2 || live_neighbors == 3) && living {
 				updated[i][j] = true
 			}
+
+			if (live_neighbors == 3) && !living {
+				updated[i][j] = true
+			}
 		}
 	}
 

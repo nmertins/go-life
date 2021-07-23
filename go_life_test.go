@@ -96,4 +96,32 @@ func TestUpdate(t *testing.T) {
 			t.Errorf("got %v want %v", got, want)
 		}
 	})
+
+	t.Run("dead cell with exactly three live neighbors becomes live", func(t *testing.T) {
+		world := createEmptyWorld(3, 3)
+		world[0][0] = true
+		world[0][1] = true
+		world[1][0] = true
+
+		// Starting state
+		// [*][*][ ]
+		// [*][ ][ ]
+		// [ ][ ][ ]
+
+		got := Update(world)
+		want := [][]bool{
+			{true, true, false},
+			{true, true, false},
+			{false, false, false},
+		}
+
+		// Expected state
+		// [*][*][ ]
+		// [*][*][ ] <- dies due to too many neighbors
+		// [ ][ ][ ] <- dies due to not enough neighbors
+
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got %v want %v", got, want)
+		}
+	})
 }
