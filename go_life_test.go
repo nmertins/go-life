@@ -5,21 +5,24 @@ import (
 	"testing"
 )
 
-func createEmptyWorld(x, y int) [][]bool {
-	ret := make([][]bool, y)
-	for i := range ret {
-		ret[i] = make([]bool, x)
+func createEmptyWorld(x, y int) World {
+	state := make([][]bool, y)
+	for i := range state {
+		state[i] = make([]bool, x)
 	}
+
+	ret := World{state}
+
 	return ret
 }
 
 func TestUpdate(t *testing.T) {
 
 	t.Run("dimensions match", func(t *testing.T) {
-		empty_world := createEmptyWorld(3, 3)
-		updated_world := Update(empty_world)
+		world := createEmptyWorld(3, 3)
+		world.Update()
 
-		got := []int{len(updated_world), len(updated_world[0])}
+		got := []int{len(world.State), len(world.State[0])}
 		want := []int{3, 3}
 
 		if !reflect.DeepEqual(got, want) {
@@ -28,20 +31,21 @@ func TestUpdate(t *testing.T) {
 	})
 
 	t.Run("empty world remains empty", func(t *testing.T) {
-		empty_world := createEmptyWorld(3, 3)
-		updated_world := Update(empty_world)
+		world := createEmptyWorld(3, 3)
+		world_copy := world
+		world.Update()
 
-		if !reflect.DeepEqual(updated_world, empty_world) {
-			t.Errorf("got %v want %v", updated_world, empty_world)
+		if !reflect.DeepEqual(world, world_copy) {
+			t.Errorf("got %v want %v", world, world_copy)
 		}
 	})
 
 	t.Run("single living cell dies", func(t *testing.T) {
 		world := createEmptyWorld(3, 3)
-		world[1][1] = true
-		updated_world := Update(world)
+		world.State[1][1] = true
+		world.Update()
 
-		got := updated_world[1][1]
+		got := world.State[1][1]
 		want := false
 
 		if got != want {
@@ -50,11 +54,14 @@ func TestUpdate(t *testing.T) {
 	})
 
 	t.Run("live cell with two or three live neighbors continues living", func(t *testing.T) {
-		world := [][]bool{
-			{true, true, true},
+		world := World{
+			[][]bool{
+				{true, true, true},
+			},
 		}
 
-		got := Update(world)
+		world.Update()
+		got := world.State
 		want := [][]bool{
 			{false, true, false},
 		}
@@ -63,13 +70,15 @@ func TestUpdate(t *testing.T) {
 			t.Errorf("got %v want %v", got, want)
 		}
 
-		world = [][]bool{
+		world.State = [][]bool{
 			{true, true},
 			{true, true},
 		}
 
-		got = Update(world)
-		want = world
+		want = world.State
+
+		world.Update()
+		got = world.State
 
 		if !reflect.DeepEqual(got, want) {
 			t.Errorf("got %v want %v", got, want)
@@ -78,18 +87,19 @@ func TestUpdate(t *testing.T) {
 
 	t.Run("live cell with more than three live neighbors dies", func(t *testing.T) {
 		world := createEmptyWorld(3, 3)
-		world[0][0] = true
-		world[0][1] = true
-		world[0][2] = true
-		world[1][1] = true
-		world[2][1] = true
+		world.State[0][0] = true
+		world.State[0][1] = true
+		world.State[0][2] = true
+		world.State[1][1] = true
+		world.State[2][1] = true
 
 		// Starting state
 		// [*][*][*]
 		// [ ][*][ ]
 		// [ ][*][ ]
 
-		got := Update(world)
+		world.Update()
+		got := world.State
 		want := [][]bool{
 			{true, true, true},
 			{false, false, false},
@@ -108,16 +118,17 @@ func TestUpdate(t *testing.T) {
 
 	t.Run("dead cell with exactly three live neighbors becomes live", func(t *testing.T) {
 		world := createEmptyWorld(3, 3)
-		world[0][0] = true
-		world[0][1] = true
-		world[1][0] = true
+		world.State[0][0] = true
+		world.State[0][1] = true
+		world.State[1][0] = true
 
 		// Starting state
 		// [*][*][ ]
 		// [*][ ][ ]
 		// [ ][ ][ ]
 
-		got := Update(world)
+		world.Update()
+		got := world.State
 		want := [][]bool{
 			{true, true, false},
 			{true, true, false},

@@ -1,18 +1,22 @@
 package main
 
+type World struct {
+	State [][]bool
+}
+
 // Iterate over each cell in the world applying the update rule.
-func Update(world [][]bool) [][]bool {
-	updated := make([][]bool, len(world))
+func (w *World) Update() {
+	updated := make([][]bool, len(w.State))
 	for i := range updated {
-		updated[i] = make([]bool, len(world[i]))
+		updated[i] = make([]bool, len(w.State[i]))
 	}
 
-	for i, row := range world {
+	for i, row := range w.State {
 		for j := range row {
-			neighbors := getNeighbors(i, j, world)
+			neighbors := w.getNeighbors(i, j)
 
 			live_neighbors := 0
-			living := world[i][j]
+			living := w.State[i][j]
 			for _, neighbor := range neighbors {
 				if neighbor {
 					live_neighbors++
@@ -29,12 +33,12 @@ func Update(world [][]bool) [][]bool {
 		}
 	}
 
-	return updated
+	w.State = updated
 }
 
-func getNeighbors(i, j int, world [][]bool) []bool {
-	rows := len(world)
-	columns := len(world[0])
+func (w World) getNeighbors(i, j int) []bool {
+	rows := len(w.State)
+	columns := len(w.State[0])
 
 	top_edge := i == 0
 	bottom_edge := i == rows-1
@@ -43,35 +47,35 @@ func getNeighbors(i, j int, world [][]bool) []bool {
 
 	var neighbors []bool
 	if !top_edge {
-		neighbors = append(neighbors, world[i-1][j])
+		neighbors = append(neighbors, w.State[i-1][j])
 	}
 
 	if !bottom_edge {
-		neighbors = append(neighbors, world[i+1][j])
+		neighbors = append(neighbors, w.State[i+1][j])
 	}
 
 	if !left_edge {
-		neighbors = append(neighbors, world[i][j-1])
+		neighbors = append(neighbors, w.State[i][j-1])
 	}
 
 	if !right_edge {
-		neighbors = append(neighbors, world[i][j+1])
+		neighbors = append(neighbors, w.State[i][j+1])
 	}
 
 	if !(top_edge || left_edge) {
-		neighbors = append(neighbors, world[i-1][j-1])
+		neighbors = append(neighbors, w.State[i-1][j-1])
 	}
 
 	if !(top_edge || right_edge) {
-		neighbors = append(neighbors, world[i-1][j+1])
+		neighbors = append(neighbors, w.State[i-1][j+1])
 	}
 
 	if !(bottom_edge || left_edge) {
-		neighbors = append(neighbors, world[i+1][j-1])
+		neighbors = append(neighbors, w.State[i+1][j-1])
 	}
 
 	if !(bottom_edge || right_edge) {
-		neighbors = append(neighbors, world[i+1][j+1])
+		neighbors = append(neighbors, w.State[i+1][j+1])
 	}
 
 	return neighbors
